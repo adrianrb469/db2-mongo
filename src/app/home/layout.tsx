@@ -28,8 +28,7 @@ export default function UserLayout({
             ></path>
           </svg>
         </label>
-
-        <div className="p-3">{children}</div>
+        <div className="h-full">{children}</div>
       </div>
       <div className="drawer-side">
         <label
