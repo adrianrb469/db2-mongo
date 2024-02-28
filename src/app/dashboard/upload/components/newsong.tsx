@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function NewSong(){
     const [modalVisible, setModalVisible] = useState(false);
+    const [Id,  setID] = useState("");
     const [title, setTitle] = useState("");
     const [duration, setDuration] = useState(0);
     const [artists, setArtists] = useState("");
@@ -25,6 +26,7 @@ export default function NewSong(){
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    id: Id,
                     title: title,
                     duration: duration,
                     artists: artists,
@@ -51,6 +53,14 @@ export default function NewSong(){
             onClose={onClose}
         >
             <form onSubmit={handleSubmit} className="form-control">
+                <div> 
+                    <label>Id</label>
+                    <input
+                        type="text"
+                        value={Id}
+                        onChange={(e) => setID(e.target.value)}
+                    />
+                </div>
                 <div>
                     <label>Title</label>
                     <input
