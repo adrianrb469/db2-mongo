@@ -6,8 +6,11 @@ import Modal from "@/components/modal";
 import { toast } from "sonner";
 
 interface Song {
+  song_id: string;
   name: string;
   duration: number;
+  artists: { name: string }[];
+  album: string;
   date_added: string; // yyyy-mm-dd
 }
 
@@ -22,13 +25,32 @@ interface Playlist {
 async function getPlaylist(id: string) {
   const response = await fetch(`http://localhost:3000/api/playlists/${id}`);
   const data = await response.json();
-  console.log(data.playlist);
-
+  console.log(data);
   return data.playlist;
 }
 
 export default function Playlist() {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
+  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+
+  const handleSelect = (id: string) => {
+    if (selectedSongs.includes(id)) {
+      setSelectedSongs(selectedSongs.filter((songId) => songId !== id));
+    } else {
+      setSelectedSongs([...selectedSongs, id]);
+    }
+  };
+
+  const selectAll = () => {
+    if (!playlist) return;
+    if (!playlist.songs) return;
+
+    if (selectedSongs.length === playlist.songs.length) {
+      setSelectedSongs([]);
+    } else {
+      setSelectedSongs(playlist.songs.map((song) => song.song_id));
+    }
+  };
 
   const params = useParams<{ id: string }>();
 
@@ -41,7 +63,7 @@ export default function Playlist() {
     params.id && getPlaylist(params.id).then((data) => setPlaylist(data));
   }, []);
 
-  const updatePlaylist = async (event) => {
+  const updatePlaylist = async (event: Event) => {
     event.preventDefault();
     try {
       const updatedPlaylist = await fetch(
@@ -74,10 +96,46 @@ export default function Playlist() {
     }
   };
 
+  const removeSongs = async () => {
+    if (!playlist) return;
+    if (!playlist.songs) return;
+    if (selectedSongs.length === 0) return;
+
+    try {
+      const updatedPlaylist = await fetch(
+        "http://localhost:3000/api/playlists/" + params.id,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            songsToRemove: selectedSongs,
+          }),
+        }
+      );
+
+      await updatedPlaylist.json();
+
+      setPlaylist({
+        ...playlist,
+        songs: playlist.songs.filter(
+          (song) => !selectedSongs.includes(song.song_id)
+        ),
+      });
+
+      setSelectedSongs([]);
+
+      toast.success("Songs removed successfully.");
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {playlist && (
-        <div className="">
+        <>
           <div className="flex w-full  bg-base-300 justify-start  p-4   shadow-inner ">
             <img src={playlist.image} className="h-60 w-60 shadow-lg " />
             <div
@@ -140,18 +198,29 @@ export default function Playlist() {
               </div>
             </form>
           </Modal>
-          <div className="">
-            <div className="overflow-x-auto">
+          <div className="flex-1 ">
+            <div className="overflow-x-auto ">
               <table className="table  mx-auto ">
                 <thead>
                   <tr>
                     <th className=" w-5">
                       <label>
-                        <input type="checkbox" className="checkbox" />
+                        <input
+                          type="checkbox"
+                          className="checkbox"
+                          checked={
+                            selectedSongs.length === playlist.songs.length
+                              ? true
+                              : false
+                          }
+                          onChange={() => {
+                            selectAll();
+                          }}
+                        />
                       </label>
                     </th>
                     <th>#</th>
-                    <th>Title</th>
+                    <th>Name</th>
                     <th>Date added</th>
                     <th>Duration</th>
                   </tr>
@@ -162,12 +231,23 @@ export default function Playlist() {
                       <tr key={index}>
                         <th>
                           <label>
-                            <input type="checkbox" className="checkbox" />
+                            <input
+                              type="checkbox"
+                              className="checkbox"
+                              checked={
+                                selectedSongs.includes(song.song_id)
+                                  ? true
+                                  : false
+                              }
+                              onChange={() => handleSelect(song.song_id)}
+                            />
                           </label>
                         </th>
 
                         <td>{index + 1}</td>
-                        <td>{song.name}</td>
+                        <td>
+                          {song.artists[0].name} - {song.name}
+                        </td>
                         <td> {formatDate(song.date_added)}</td>
                         <td>{formatDuration(song.duration)}</td>
                       </tr>
@@ -181,7 +261,24 @@ export default function Playlist() {
               </table>
             </div>
           </div>
-        </div>
+          {selectedSongs.length > 0 && (
+            <div className="flex justify-end p-4  bg-base-300 max-w-lg mx-auto  rounded-lg  items-center space-x-5 mb-4 ">
+              {selectedSongs.length > 1 ? (
+                <p>{selectedSongs.length} songs selected</p>
+              ) : (
+                <p>{selectedSongs.length} song selected</p>
+              )}
+              <button
+                className="btn btn-primary btn-accent"
+                onClick={() => {
+                  removeSongs();
+                }}
+              >
+                Remove From Playlist
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

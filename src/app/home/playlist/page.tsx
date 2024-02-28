@@ -15,7 +15,7 @@ interface Playlist {
 }
 
 export default async function Playlists() {
-  const playlists: Playlist[] = await getPlaylists();
+  let playlists: Playlist[] = await getPlaylists();
 
   return (
     <div className="flex flex-col h-full">

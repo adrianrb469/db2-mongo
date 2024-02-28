@@ -17,14 +17,75 @@ export async function GET(
 
   const client = await db;
 
+  const pipeline = [
+    {
+      $match: {
+        _id: new ObjectId(playlistId),
+      },
+    },
+    {
+      $unwind: {
+        path: "$songs",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+
   const playlist = await client
     .db("p1")
     .collection("Playlist")
-    .findOne({
-      _id: new ObjectId(playlistId),
-    });
+    .aggregate(pipeline)
+    .toArray();
 
-  return new NextResponse(JSON.stringify({ playlist }), { status: 200 });
+  // If the playlist has no songs, return the playlist data directly
+  if (playlist.length === 0 || !playlist[0].songs) {
+    const playlistData = playlist[0];
+    playlistData.songs = [];
+    return new NextResponse(JSON.stringify({ playlist: playlistData }), {
+      status: 200,
+    });
+  }
+
+  // Otherwise, continue with lookup and grouping
+  pipeline.push(
+    {
+      $lookup: {
+        from: "Song",
+        localField: "songs.song_id",
+        foreignField: "_id",
+        as: "songDetails",
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        id: { $first: "$id" },
+        title: { $first: "$title" },
+        description: { $first: "$description" },
+        image: { $first: "$image" },
+        songs: {
+          $push: {
+            date_added: "$songs.date_added",
+            duration: "$songs.duration",
+            song_id: "$songs.song_id",
+            name: { $arrayElemAt: ["$songDetails.title", 0] },
+            album: { $arrayElemAt: ["$songDetails.album", 0] },
+            artists: { $arrayElemAt: ["$songDetails.artists", 0] },
+          },
+        },
+      },
+    }
+  );
+
+  const result = await client
+    .db("p1")
+    .collection("Playlist")
+    .aggregate(pipeline)
+    .toArray();
+
+  return new NextResponse(JSON.stringify({ playlist: result[0] }), {
+    status: 200,
+  });
 }
 
 export async function PUT(
@@ -41,9 +102,33 @@ export async function PUT(
     );
   }
 
-  const client = await db;
+  const body = await request.json();
 
-  const { title, description } = await request.json();
+  if (body.songsToRemove) {
+    const client = await db;
+
+    const playlist = await client
+      .db("p1")
+      .collection("Playlist")
+      .findOneAndUpdate(
+        { _id: new ObjectId(playlistId) },
+        { $pull: { songs: { id_song: { $in: body.songsToRemove } } } },
+        { returnDocument: "after" }
+      );
+
+    return new NextResponse(JSON.stringify({ playlist }), { status: 200 });
+  }
+
+  const { title, description } = body;
+
+  if (!title || !description) {
+    return new NextResponse(
+      JSON.stringify({ error: "Title and description are required." }),
+      { status: 400 }
+    );
+  }
+
+  const client = await db;
 
   const playlist = await client
     .db("p1")

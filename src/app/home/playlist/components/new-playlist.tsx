@@ -1,5 +1,6 @@
 "use client";
 import Modal from "@/components/modal";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function NewPlaylist() {
@@ -7,6 +8,8 @@ export default function NewPlaylist() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+
+  const router = useRouter();
 
   function onClose() {
     setModalVisible(false);
@@ -29,10 +32,16 @@ export default function NewPlaylist() {
           description: description,
           image: imageUrl,
         }),
+
+        cache: "no-store",
       });
 
-      console.log(newPlaylist);
+      const { playlist } = await newPlaylist.json();
+      console.log(playlist);
       setModalVisible(false);
+
+      //push id to current route
+      router.push(`/home/playlist/${playlist}`);
     } catch (error) {
       console.error("Error:", error);
     }
