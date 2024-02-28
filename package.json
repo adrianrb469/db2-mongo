@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mongodb-js/charts-embed-dom": "^3.2.1",
     "clsx": "^2.1.0",
     "daisyui": "^4.7.0",
     "mongodb": "^6.3.0",

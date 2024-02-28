@@ -16,6 +16,9 @@ export default function Home() {
           <Link href="/dashboard" className="btn">
             I make 'em
           </Link>
+          <Link href="/admin" className="btn">
+            I'm the boss
+          </Link>
         </div>
       </div>
     </main>
