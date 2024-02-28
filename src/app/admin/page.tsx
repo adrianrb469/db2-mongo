@@ -7,6 +7,7 @@ export default function AdminView() {
   const chartRef = useRef();
   const chartRef2 = useRef();
   const chartRef3 = useRef();
+  const chartRef4 = useRef();
 
   useEffect(() => {
     const sdk = new ChartsEmbedSDK({
@@ -28,6 +29,11 @@ export default function AdminView() {
       theme: "light",
     });
 
+    const chart4 = sdk.createChart({
+      chartId: "65dec71e-48ba-41b1-86d8-781f6ea92aec",
+      theme: "light",
+    });
+
     chart
       .render(chartRef.current)
       .catch(() => window.alert("Chart failed to initialise"));
@@ -38,6 +44,10 @@ export default function AdminView() {
 
     chart3
       .render(chartRef3.current)
+      .catch(() => window.alert("Chart failed to initialise"));
+
+    chart4
+      .render(chartRef4.current)
       .catch(() => window.alert("Chart failed to initialise"));
 
     // Optional: Refresh the chart when a button is clicked
@@ -56,6 +66,9 @@ export default function AdminView() {
       </div>
       <div className="6 ">
         <div ref={chartRef3} className=" w-96 h-96 " />
+      </div>
+      <div className="6 ">
+        <div ref={chartRef4} className=" w-96 h-96 " />
       </div>
     </div>
   );

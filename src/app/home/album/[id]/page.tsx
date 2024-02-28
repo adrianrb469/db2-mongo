@@ -303,7 +303,8 @@ export default function album() {
 
                         <td>{index + 1}</td>
                         <td>
-                          {song.artist} - {song.name}
+                          {song.artist || song.artists || "Unknown Artist"}-{" "}
+                          {song.name}
                         </td>
                         <td> {song.plays}</td>
                         <td>{formatDuration(song.duration)}</td>
