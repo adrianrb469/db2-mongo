@@ -66,7 +66,7 @@ export async function GET(
         songs: {
           $push: {
             date_added: "$songs.date_added",
-            duration: "$songs.duration",
+            duration: { $arrayElemAt: ["$songDetails.duration", 0] },
             song_id: "$songs.song_id",
             name: { $arrayElemAt: ["$songDetails.title", 0] },
             album: { $arrayElemAt: ["$songDetails.album", 0] },
@@ -106,13 +106,17 @@ export async function PUT(
 
   if (body.songsToRemove) {
     const client = await db;
+    // Convert strings to ObjectId instances
+    const songsToRemove = body.songsToRemove.map((id) => new ObjectId(id));
+
+    console.log("Removing songs", songsToRemove);
 
     const playlist = await client
       .db("p1")
       .collection("Playlist")
       .findOneAndUpdate(
         { _id: new ObjectId(playlistId) },
-        { $pull: { songs: { id_song: { $in: body.songsToRemove } } } },
+        { $pull: { songs: { song_id: { $in: songsToRemove } } } },
         { returnDocument: "after" }
       );
 
@@ -139,6 +143,56 @@ export async function PUT(
         $set: {
           title,
           description,
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+  return new NextResponse(JSON.stringify({ playlist }), { status: 200 });
+}
+
+export async function PATCH(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  const playlistId = context.params.id;
+
+  if (!playlistId) {
+    return new NextResponse(
+      JSON.stringify({ error: "No playlist id provided." }),
+      { status: 400 }
+    );
+  }
+
+  const body = await request.json();
+  const songId = body.songId;
+  if (!songId) {
+    return new NextResponse(JSON.stringify({ error: "No song id provided." }), {
+      status: 400,
+    });
+  }
+
+  const client = await db;
+
+  const song = await client
+    .db("p1")
+    .collection("Song")
+    .findOne({ _id: new ObjectId(songId) });
+
+  if (!song) {
+    return new NextResponse(JSON.stringify({ error: "Song not found." }), {
+      status: 404,
+    });
+  }
+
+  const playlist = await client
+    .db("p1")
+    .collection("Playlist")
+    .findOneAndUpdate(
+      { _id: new ObjectId(playlistId) },
+      {
+        $push: {
+          songs: { song_id: new ObjectId(songId), date_added: new Date() },
         },
       },
       { returnDocument: "after" }
