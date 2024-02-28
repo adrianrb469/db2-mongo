@@ -6,6 +6,7 @@ import ChartsEmbedSDK from "@mongodb-js/charts-embed-dom";
 export default function AdminView() {
   const chartRef = useRef();
   const chartRef2 = useRef();
+  const chartRef3 = useRef();
 
   useEffect(() => {
     const sdk = new ChartsEmbedSDK({
@@ -22,12 +23,21 @@ export default function AdminView() {
       theme: "light",
     });
 
+    const chart3 = sdk.createChart({
+      chartId: "65deb4a4-7bcc-4b5e-8abd-40cf260cf1aa",
+      theme: "light",
+    });
+
     chart
       .render(chartRef.current)
       .catch(() => window.alert("Chart failed to initialise"));
 
     chart2
       .render(chartRef2.current)
+      .catch(() => window.alert("Chart failed to initialise"));
+
+    chart3
+      .render(chartRef3.current)
       .catch(() => window.alert("Chart failed to initialise"));
 
     // Optional: Refresh the chart when a button is clicked
@@ -37,14 +47,15 @@ export default function AdminView() {
   }, []);
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-
+    <div className="space-x-5 flex h-screen justify-center items-center">
       <div className="6 ">
         <div ref={chartRef} className=" w-96 h-96 " />
       </div>
       <div className="6 ">
         <div ref={chartRef2} className=" w-96 h-96 " />
+      </div>
+      <div className="6 ">
+        <div ref={chartRef3} className=" w-96 h-96 " />
       </div>
     </div>
   );
