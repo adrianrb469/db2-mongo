@@ -11,7 +11,7 @@ async function getPlaylists() {
 interface Playlist {
   title: string;
   image: string;
-  _id: string;
+  id: string;
 }
 
 export default async function Playlists() {

@@ -5,7 +5,9 @@ export default function Dashboard() {
       <p>
         Welcome back Artist. Manage your music, see how your music is doing, and
         connect with your fans. Upload new music and manage your profile.
+
       </p>
+      
     </main>
   );
 }
