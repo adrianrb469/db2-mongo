@@ -1,4 +1,5 @@
 "use client";
+
 import Modal from "@/components/modal";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +23,7 @@ export default function NewPlaylist() {
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
     try {
-      const newPlaylist = await fetch("http://localhost:3000/api/playlists", {
+      const newPlaylist = await fetch("http://localhost:3000/api/albums", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,40 +59,34 @@ export default function NewPlaylist() {
         onClose={onClose}
       >
         <form onSubmit={handleSubmit} className="form-control">
-          <label className="label">
-            <span className="label-text">Name</span>
-          </label>
-          <input
-            type="text"
-            className="input input-bordered"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <label className="label">
-            <span className="label-text">Description</span>
-          </label>
-          <textarea
-            className="textarea h-24 textarea-bordered"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-          <label className="label">
-            <span className="label-text">Image</span>
-          </label>
-          <input
-            type="text"
-            className="input input-bordered"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
-          <div className="modal-action">
-            <button className="btn" onClick={() => setModalVisible(false)}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Create
-            </button>
+          <div className="form-control">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="form-control">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="form-control">
+            <label htmlFor="imageUrl">Image URL</label>
+            <input
+              type="text"
+              id="imageUrl"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+          </div>
+          <div className="form-control">
+            <button type="submit" className="btn btn-primary"></button>
           </div>
         </form>
       </Modal>
