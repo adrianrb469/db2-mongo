@@ -26,6 +26,7 @@ export default function Songs() {
     console.log(params.id);
     params.id && getSong(params.id);
   }, []);
+
   return (
     <div>
       <h1>Song</h1>

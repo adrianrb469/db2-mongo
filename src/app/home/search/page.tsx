@@ -143,7 +143,12 @@ export default function Search() {
           >
             <div className="flex flex-col mr-8">
               <p className="font-bold text-primary">{track.title}</p>
-              <p>{track.artists[0].name}</p>
+              <p>
+                {track.artists?.[0]?.name ||
+                  track.artists ||
+                  track.artist ||
+                  "Unknown Artist"}
+              </p>
             </div>
             <div className="flex flex-col items-end">
               <p className="font-bold">{formatPlayCount(track.play_count)}</p>

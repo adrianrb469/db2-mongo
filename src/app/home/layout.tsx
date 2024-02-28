@@ -45,9 +45,6 @@ export default function UserLayout({
             </li>
 
             <li>
-              <Link href="/home">Home</Link>
-            </li>
-            <li>
               <Link href="/home/search">Search</Link>
             </li>
           </ul>
@@ -62,9 +59,6 @@ export default function UserLayout({
             </li>
             <li>
               <Link href="/home/album">Albums</Link>
-            </li>
-            <li>
-              <Link href="/home/artists">Artists</Link>
             </li>
           </ul>
         </div>
