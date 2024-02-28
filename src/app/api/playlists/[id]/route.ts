@@ -106,13 +106,17 @@ export async function PUT(
 
   if (body.songsToRemove) {
     const client = await db;
+    // Convert strings to ObjectId instances
+    const songsToRemove = body.songsToRemove.map((id) => new ObjectId(id));
+
+    console.log("Removing songs", songsToRemove);
 
     const playlist = await client
       .db("p1")
       .collection("Playlist")
       .findOneAndUpdate(
         { _id: new ObjectId(playlistId) },
-        { $pull: { songs: { id_song: { $in: body.songsToRemove } } } },
+        { $pull: { songs: { song_id: { $in: songsToRemove } } } },
         { returnDocument: "after" }
       );
 

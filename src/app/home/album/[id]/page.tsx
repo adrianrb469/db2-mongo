@@ -32,6 +32,7 @@ async function getalbum(id: string) {
 export default function album() {
   const [album, setalbum] = useState<album | null>(null);
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [results, setResults] = useState([]);
 
   const handleSelect = (id: string) => {
     if (selectedSongs.includes(id)) {
@@ -52,6 +53,45 @@ export default function album() {
     }
   };
 
+  const handleSongSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSongToAdd(event.target.value);
+  };
+
+  const addSongToAlbum = async () => {
+    if (!selectedSongToAdd) return;
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/albums/" + params.id,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            songId: selectedSongToAdd,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.album && data.album.songs) {
+        setalbum(data.album);
+      }
+
+      toast.success("Song added successfully.");
+      setAddSongModalVisible(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const [addSongModalVisible, setAddSongModalVisible] = useState(false);
+  const [selectedSongToAdd, setSelectedSongToAdd] = useState<string | null>(
+    null
+  );
+
   const params = useParams<{ id: string }>();
 
   const [name, setName] = useState("");
@@ -61,6 +101,14 @@ export default function album() {
 
   useEffect(() => {
     params.id && getalbum(params.id).then((data) => setalbum(data));
+
+    const getResults = async () => {
+      const response = await fetch("http://localhost:3000/api/search");
+      const data = await response.json();
+      setResults(data.songs);
+    };
+
+    getResults();
   }, []);
 
   const updatealbum = async (event: Event) => {
@@ -88,7 +136,7 @@ export default function album() {
         description: description,
       });
 
-      toast.success("album updated successfully.");
+      toast.success("album update d successfully.");
 
       setEditModalVisible(false);
     } catch (error) {
@@ -101,26 +149,29 @@ export default function album() {
     if (!album.songs) return;
     if (selectedSongs.length === 0) return;
 
+    console.log("Removing songs", selectedSongs);
+
     try {
       const updatedalbum = await fetch(
         "http://localhost:3000/api/albums/" + params.id,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             songsToRemove: selectedSongs,
           }),
+          cache: "no-cache",
         }
       );
 
-      await updatedalbum.json();
-
+      const x = await updatedalbum.json();
+      console.log(x);
       setalbum({
         ...album,
         songs: album.songs.filter(
-          (song) => !selectedSongs.includes(song.song_id)
+          (song) => !selectedSongs.includes(song.id_song)
         ),
       });
 
@@ -160,6 +211,12 @@ export default function album() {
               </p>
             </div>
           </div>
+          <button
+            className="btn  btn-primary btn-accent w-fit m-4"
+            onClick={() => setAddSongModalVisible(true)}
+          >
+            Add Song
+          </button>
           <Modal
             title="Edit album"
             visible={editModalVisible}
@@ -235,11 +292,11 @@ export default function album() {
                               type="checkbox"
                               className="checkbox"
                               checked={
-                                selectedSongs.includes(song.song_id)
+                                selectedSongs.includes(song.id_song)
                                   ? true
                                   : false
                               }
-                              onChange={() => handleSelect(song.song_id)}
+                              onChange={() => handleSelect(song.id_song)}
                             />
                           </label>
                         </th>
@@ -259,6 +316,43 @@ export default function album() {
                   )}
                 </tbody>
               </table>
+
+              {/* Add new song */}
+              <Modal
+                title="Add Song"
+                visible={addSongModalVisible}
+                onClose={() => {
+                  setAddSongModalVisible(false);
+                }}
+              >
+                <form className="form-control" onSubmit={addSongToAlbum}>
+                  <label className="label">
+                    <span className="label-text">Select Song</span>
+                  </label>
+                  <select
+                    className="select select-bordered"
+                    value={selectedSongToAdd}
+                    onChange={handleSongSelect}
+                  >
+                    <option value="">Select a song</option>
+                    {results.map((song) => (
+                      <option key={song._id} value={song._id}>
+                        {song.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="modal-action">
+                    <button
+                      className="btn btn-outline"
+                      type="button"
+                      onClick={() => setAddSongModalVisible(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button className="btn btn-primary">Add Song</button>
+                  </div>
+                </form>
+              </Modal>
             </div>
           </div>
           {selectedSongs.length > 0 && (
