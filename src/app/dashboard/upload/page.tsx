@@ -1,4 +1,5 @@
 import SongCard from "../../../components/songs/songcard";
+import Newsong from "./components/newsong";
 
 async function getSongs() {
     const response = await fetch("http://localhost:3000/api/song");
@@ -31,7 +32,8 @@ export  default async function Songs() {
                     />
                 ))}
             </div>
-            
+            <Newsong />
         </div>
+
     );
 }
