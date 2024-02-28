@@ -61,7 +61,7 @@ export default function UserLayout({
               <Link href="/home/playlist">Playlists</Link>
             </li>
             <li>
-              <Link href="/home/albums">Albums</Link>
+              <Link href="/home/album">Albums</Link>
             </li>
             <li>
               <Link href="/home/artists">Artists</Link>

@@ -38,7 +38,7 @@ export default function PlaylistCard({
 
   return (
     <div
-      className="card-compact bg-base-200 max-w-40 shadow-md   max-h-64 relative group cursor-pointer"
+      className="card-compact bg-base-200 max-w-40 shadow-md   max-h-[17rem] relative group cursor-pointer"
       key={id}
       onClick={onPlaylistClick}
     >
@@ -49,13 +49,14 @@ export default function PlaylistCard({
         style={{ aspectRatio: 1 / 1 }}
       />
 
-      <div className="card-body">
+      <div className="card-body flex flex-col justify-between">
         <Link href={`/home/playlist/${id}`}>
-          <h2 className="card-title">{title}</h2>
+          <h2 className="card-title overflow-hidden overflow-ellipsis   ">
+            {title}
+          </h2>
         </Link>
         <div className="card-actions justify-end">
           <p className="text-gray-700">Playlist</p>
-          <div className="justify-end card-actions"></div>
         </div>
       </div>
     </div>

@@ -19,7 +19,7 @@ export default function NewPlaylist() {
     console.log(modalVisible);
   }, [modalVisible]);
 
-  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+  const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     try {
       const newPlaylist = await fetch("http://localhost:3000/api/playlists", {
@@ -86,7 +86,11 @@ export default function NewPlaylist() {
             onChange={(e) => setImageUrl(e.target.value)}
           />
           <div className="modal-action">
-            <button className="btn" onClick={() => setModalVisible(false)}>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => setModalVisible(false)}
+            >
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">

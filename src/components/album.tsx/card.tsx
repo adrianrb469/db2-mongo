@@ -1,37 +1,65 @@
-import React from 'react';
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import clsx from "clsx";
+import { redirect, useRouter } from "next/navigation";
 
-// Define your interfaces here or import them if they are defined in another file
-interface Song {
-  id_song: number;
-  name: string;
-  artist: string;
+interface AlbumCardProps {
+  title: string;
+  image: string;
+  id: string;
 }
 
-interface Album {
-  name: string;
-  release_date: string;
-  coverImageUrl?: string;
-  songs: Song[];
-}
+export default function AlbumCard({
+  title,
+  image,
+  id,
+}: AlbumCardProps): JSX.Element {
+  const [isSelected, setIsSelected] = useState(false);
 
-const AlbumCard: React.FC<{ album: Album }> = ({ album }) => {
+  const checkboxClasses = clsx(
+    "checkbox",
+    "checkbox-primary",
+    "absolute",
+    "top-0",
+    "right-0",
+    "z-10",
+    {
+      "opacity-100": isSelected,
+      "opacity-0 group-hover:opacity-100": !isSelected,
+    }
+  );
+
+  const router = useRouter();
+
+  const onPlaylistClick = () => {
+    router.push(`/home/album/${id}`);
+  };
+
   return (
-    <div className="card w-96 bg-base-100 shadow-xl">
-      <figure><img src={album.coverImageUrl || '/default-album-cover.png'} alt="Album Cover" /></figure>
+    <div
+      className="card-compact bg-base-200 max-w-40 shadow-md   max-h-64 relative group cursor-pointer"
+      key={id}
+      onClick={onPlaylistClick}
+    >
+      <img
+        src={image}
+        height={160}
+        width={160}
+        style={{ aspectRatio: 1 / 1 }}
+      />
+
       <div className="card-body">
-        <h2 className="card-title">{album.name}</h2>
-        <p>Release Date: {album.release_date}</p>
-        <div>
-          <h3>Songs:</h3>
-          <ul>
-            {album.songs.map((song) => (
-              <li key={song.id_song}>{song.name} - {song.artist}</li>
-            ))}
-          </ul>
+        <Link href={`/home/playlist/${id}`}>
+          <h2 className="card-title overflow-hidden overflow-ellipsis whitespace-nowrap">
+            {title}
+          </h2>
+        </Link>
+        <div className="card-actions justify-end">
+          <p className="text-gray-700">Playlist</p>
+          <div className="justify-end card-actions"></div>
         </div>
       </div>
     </div>
   );
-};
-
-export default AlbumCard;
+}

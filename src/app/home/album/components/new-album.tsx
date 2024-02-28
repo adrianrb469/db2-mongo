@@ -20,7 +20,9 @@ export default function NewPlaylist() {
     console.log(modalVisible);
   }, [modalVisible]);
 
-  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+  const [songs, setSongs] = useState([]);
+
+  const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     try {
       const newPlaylist = await fetch("http://localhost:3000/api/albums", {
@@ -54,7 +56,7 @@ export default function NewPlaylist() {
         Create Playlist
       </button>
       <Modal
-        title="Create a new playlist"
+        title="Create a new album"
         visible={modalVisible}
         onClose={onClose}
       >
@@ -64,6 +66,7 @@ export default function NewPlaylist() {
             <input
               type="text"
               id="name"
+              className="input input-bordered"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -72,6 +75,7 @@ export default function NewPlaylist() {
             <label htmlFor="description">Description</label>
             <textarea
               id="description"
+              className="textarea h-24 textarea-bordered"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -81,12 +85,22 @@ export default function NewPlaylist() {
             <input
               type="text"
               id="imageUrl"
+              className="input input-bordered"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
             />
           </div>
-          <div className="form-control">
-            <button type="submit" className="btn btn-primary"></button>
+          <div className="modal-action">
+            <button
+              className="btn"
+              onClick={() => setModalVisible(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Create
+            </button>
           </div>
         </form>
       </Modal>
